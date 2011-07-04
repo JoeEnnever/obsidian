@@ -1,20 +1,13 @@
-#!/usr/bin/python
-
-import os
-
-# ./.obs.cnf and ~/.obs.cnf
-project_conf_name = '.obs.cnf'
-# /etc/obs.cnf
-system_conf_name = '/etc/obsidian.cnf'
-
+#!/usr/bin/env python
+from ocommon import *
+import ConfigParser
+from ConfigParser import NoOptionError
+import sys
+import argparse
 """
 Starts a Java program defined by file 'cnf'.
 """
 def ostart():
-    import sys
-    import argparse
-    import ConfigParser
-
     parser = argparse.ArgumentParser(description='Starts the process named by \'appid\'')
     parser.add_argument('appid', metavar='appid', type=str)
     parser.add_argument('--dry-run', '-d', action='store_true')
@@ -84,42 +77,10 @@ def ostart():
 
     os.execv(java_cmd, c_args)
 
-def find_conf_file():
-    conf_file = find_in_parent_dir(project_conf_name)
-    if(conf_file):
-        return conf_file
-
-    conf_file = os.path.expanduser(os.path.join('~', project_conf_name))
-    if os.path.exists(conf_file):
-        return open(conf_file, 'r')
-
-    if os.path.exists(system_conf_name):
-        return open(system_conf_name, 'r')
-        
-    return None
-
-def find_in_parent_dir(fname):
-    """
-    Look in the current directory and then each parent
-    until root.
-    Inspired from 'findrepo()' in http://selenic.com/hg/file/2c9f5897d4b7/mercurial/cmdutil.py
-    """
-    p = os.path.abspath(os.path.curdir)
-    
-    while not os.path.exists(os.path.join(p, project_conf_name)):
-        oldp, p = p, os.path.dirname(p)
-        if p == oldp:
-            return None
-    
-    return open(os.path.join(p, project_conf_name), 'r') 
-
-class ConfigError(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
 if __name__ == "__main__":
     try:
         ostart()
     except ConfigError as e:
-        print e.msg
-
+        print e.message 
+    except NoOptionError as e:
+		print e.message
