@@ -46,8 +46,13 @@ def ostart():
     java_cmd = config.get(appid, 'java_home') + "/bin/java"
     classpath = config.get(appid, 'classpath')
     class_ = config.get(appid, 'class')
-
-    jvm_opts = config.get(appid, 'java_opts')
+    
+    #for compatability with flint, try both java_opts
+    #and opts. If both are missing, error falls through
+    if config.has_option(appid, 'java_opts'):
+        jvm_opts = config.get(appid,'java_opts')
+    else:
+        jvm_opts = config.get(appid, 'opts')
     jvm_opts = jvm_opts.split(' ')
 
     if config.has_option(appid, 'system_opts'):
@@ -56,11 +61,16 @@ def ostart():
     else:
         system_opts = []
 
-    if config.has_option(appid, 'conf'):
-        app_args = config.get(appid, 'conf')
+    if config.has_option(appid, 'args'):
+        app_args = config.get(appid, 'args')
         app_args = app_args.split(' ')
     else:
         app_args = []
+    
+    if config.has_option(appid, 'env'):
+        env = config.get(appid, 'env')
+        set_env(env)
+            
 
     c_args = [java_cmd]
     c_args.extend(jvm_opts)
