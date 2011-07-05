@@ -41,8 +41,8 @@ def find_in_parent_dir(fname):
 Sets the environment variables specified in the following format:
 ENV_NAME1=loc1, ENV_NAME2=loc2
 """
-def set_env(env):
-    env_list = env.replace(" ","")
+def set_env(env_str):
+    env_list = env_str.replace(" ","")
     env_list = env_list.split(",")
     for setting in env_list:
         split = setting.split("=")
