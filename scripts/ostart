@@ -48,10 +48,11 @@ def ostart():
     class_ = config.get(appid, 'class')
     
     #for compatability with flint, try both java_opts
-    #and opts. If both are missing, error falls through
+    #and opts.
+    jvm_opts = ''
     if config.has_option(appid, 'java_opts'):
         jvm_opts = config.get(appid,'java_opts')
-    else:
+    elif config.has_option(appid, 'opts'):
         jvm_opts = config.get(appid, 'opts')
     jvm_opts = jvm_opts.split(' ')
 
@@ -84,7 +85,7 @@ def ostart():
     if args.dry_run:
        print " ".join(c_args)
        return
-
+    print(java_cmd, c_args)
     os.execv(java_cmd, c_args)
 
 if __name__ == "__main__":
