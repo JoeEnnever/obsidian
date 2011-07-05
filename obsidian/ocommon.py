@@ -46,7 +46,7 @@ def set_env(env_str):
     env_list = env_list.split(",")
     for setting in env_list:
         split = setting.split("=")
-        os.environ[split[0]] = split[1]
+        os.environ[split[0]] = os.path.expandvars(split[1])
 
 class ConfigError(Exception):
     def __init__(self, message):
