@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+from ocommon import *
+import ConfigParser
+from ConfigParser import NoOptionError
+import sys
+import argparse
+"""
+Starts a Java program defined by file 'cnf'.
+"""
+def otail():
+    parser = argparse.ArgumentParser(description='Starts the process named by \'appid\'')
+    parser.add_argument('appid', metavar='appid', type=str)
+    parser.add_argument('--dry-run', '-d', action='store_true')
+    parser.add_argument('--file', '-f', dest='conf_file', type=str)
+
+    args = parser.parse_args()
+    appid = args.appid
+    conf_file = args.conf_file
+
+    if conf_file:
+        conf_file = open(conf_file, 'r')
+    else:
+        conf_file = find_conf_file()
+
+    if not conf_file:
+        raise ConfigError('could not find config file')
+        
+    if appid:
+        print "tailing [%s]" % appid
+    else:
+        print "appid required"
+        exit(1)
+
+    config = ConfigParser.ConfigParser()
+    config.readfp(conf_file)
+
+    # get the config file defaults out first, and recreate
+    # the config, providing those
+    defaults = dict(config.items('default'))
+    config = ConfigParser.ConfigParser(defaults)
+
+    #readfp reads the whole file, must rewind
+    conf_file.seek(0)
+    config.readfp(conf_file)
+
+    if config.has_option(appid, 'env'):
+        env = config.get(appid, 'env')
+        set_env(env)
+    tailFile = ''
+    if config.has_option(appid, 'file'):
+        tailFile = config.get(appid, 'file')
+    else:
+        print "Missing file, exiting"
+        return
+
+    lines = '25'
+    if config.has_option(appid, 'lines'):
+        lines = config.get(appid, 'lines')
+
+    c_args = ['/usr/bin/tail']
+    c_args.append('-n')
+    c_args.append(lines)
+    c_args.append('-f')
+    c_args.append(tailFile)
+    #Expand environment variables
+    c_args = [os.path.expandvars(x) for x in c_args if x]
+    #print " ".join(args)
+    if args.dry_run:
+       print " ".join(c_args)
+       return
+    os.execv(c_args[0], c_args)
+
+if __name__ == "__main__":
+    try:
+        otail()
+    except ConfigError as e:
+        print e.message 
+    except NoOptionError as e:
+        print e.message

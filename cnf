@@ -36,3 +36,6 @@ port 		= 9555
 [hello]
 class		= Hello
 classpath	= java
+
+[tomcat]
+file		= /opt/tomcat/logs/catalina.out

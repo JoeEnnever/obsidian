@@ -10,5 +10,5 @@ setup(name='ostart',
     description='Start and manage Java processes declaratively',
     package_dir={'': 'obsidian'},
     py_modules=['ocommon'],
-    scripts=['scripts/ostart']
+    scripts=['scripts/ostart', 'scripts/otail']
     )
